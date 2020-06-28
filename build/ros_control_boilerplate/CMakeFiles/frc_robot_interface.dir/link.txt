@@ -1,2 +1,0 @@
-gcc-ar qc /home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel/lib/libfrc_robot_interface.a  CMakeFiles/frc_robot_interface.dir/src/frc_robot_interface.cpp.o CMakeFiles/frc_robot_interface.dir/src/generic_hw_control_loop.cpp.o
-gcc-ranlib /home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel/lib/libfrc_robot_interface.a

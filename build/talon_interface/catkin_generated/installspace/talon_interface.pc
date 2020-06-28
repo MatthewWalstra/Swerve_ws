@@ -1,8 +1,0 @@
-prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/install
-
-Name: talon_interface
-Description: Description of talon_interface
-Version: 0.0.0
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: hardware_interface state_handle roscpp

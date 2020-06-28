@@ -1,8 +1,0 @@
-prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/install
-
-Name: ros_control_boilerplate
-Description: Description of ros_control_boilerplate
-Version: 0.4.1
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: hardware_interface controller_manager control_msgs trajectory_msgs actionlib urdf std_msgs frc_msgs frc_interfaces sensor_msgs rosparam_shortcuts talon_interface message_runtime
