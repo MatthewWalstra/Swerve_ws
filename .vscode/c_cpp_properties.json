@@ -6,6 +6,7 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
+                "${workspaceFolder}/devel/include",
                 "/opt/ros/melodic/include/**",
                 "/usr/include/**"
             ],
