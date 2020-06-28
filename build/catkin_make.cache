@@ -1,2 +1,2 @@
-
+base_trajectory:dynamic_reconfigure_wrapper:imu_zero:navx_offset_controller:navx_publisher:ros_control_boilerplate:state_handle:static_controller:talon_controllers:talon_interface:talon_state_controller:talon_state_msgs:talon_swerve_drive_controller
 -DCATKIN_DEVEL_PREFIX=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel -DCMAKE_INSTALL_PREFIX=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/install -G Unix Makefiles
