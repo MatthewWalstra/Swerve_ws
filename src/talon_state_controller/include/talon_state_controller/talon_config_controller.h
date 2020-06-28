@@ -35,6 +35,7 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <talon_interface/talon_state_interface.h>
 #include <talon_state_msgs/TalonConfig.h>
+#include <ros/ros.h>
 
 namespace talon_config_controller
 {
