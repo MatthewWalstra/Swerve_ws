@@ -1127,7 +1127,7 @@ void FRCRobotHWInterface::read(ros::Duration &/*elapsed_time*/)
 			}
 
 		}
-
+		/*
 		read_tracer_.start_unique("match data");
 		int32_t status = 0;
 		//check if sufficient time has passed since last read
@@ -1307,6 +1307,7 @@ void FRCRobotHWInterface::read(ros::Duration &/*elapsed_time*/)
 
 			robot_controller_state_.SetCANDataStatus(std::to_string(status) + ": " + HAL_GetErrorMessage(status));
 		}
+		*/
 	}
 
 	read_tracer_.start_unique("can talons");

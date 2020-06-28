@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel
+
+Name: frcrobot_gazebo
+Description: Description of frcrobot_gazebo
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

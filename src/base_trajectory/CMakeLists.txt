@@ -20,7 +20,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-LIST(APPEND CMAKE_MODULE_PATH "/home/ubuntu/2019Offseason/zebROS_ws/src/cmake_modules")
+#LIST(APPEND CMAKE_MODULE_PATH "/home/ubuntu/2019Offseason/zebROS_ws/src/cmake_modules")
+LIST(APPEND CMAKE_MODULE_PATH "/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/cmake_modules")
+
 find_package(Gperftools REQUIRED)
 
 

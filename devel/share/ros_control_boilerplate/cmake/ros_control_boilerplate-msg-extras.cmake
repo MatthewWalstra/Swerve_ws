@@ -1,0 +1,2 @@
+set(ros_control_boilerplate_MESSAGE_FILES "/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/ros_control_boilerplate/msg/AutoMode.msg;/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/ros_control_boilerplate/msg/AutoModeStatus.msg")
+set(ros_control_boilerplate_SERVICE_FILES "/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/ros_control_boilerplate/srv/set_limit_switch.srv;/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/ros_control_boilerplate/srv/LineBreakSensors.srv")

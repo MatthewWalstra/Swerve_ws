@@ -121,8 +121,8 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ../../..
-  ../../../navXTimeSync
+  ../..
+  ../../navXTimeSync
 )
 
 ## Declare a C++ library
@@ -131,12 +131,12 @@ include_directories(
 # )
 
 set (NAVX_SRCS
-	../../../navXTimeSync/AHRS.cpp
-	../../../navXTimeSync/ContinuousAngleTracker.cpp
-	../../../navXTimeSync/InertialDataIntegrator.cpp
-	../../../navXTimeSync/OffsetTracker.cpp
-	../../../navXTimeSync/SerialIO.cpp
-	../../../navXTimeSync/SerialPort.cpp )
+	../../navXTimeSync/AHRS.cpp
+	../../navXTimeSync/ContinuousAngleTracker.cpp
+	../../navXTimeSync/InertialDataIntegrator.cpp
+	../../navXTimeSync/OffsetTracker.cpp
+	../../navXTimeSync/SerialIO.cpp
+	../../navXTimeSync/SerialPort.cpp )
 
 ## Declare a C++ executable
 add_executable(navx_publisher_node src/navx_publisher.cpp ${NAVX_SRCS})

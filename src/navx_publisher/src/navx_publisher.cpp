@@ -9,7 +9,7 @@
 #include "geometry_msgs/Quaternion.h"
 #include "sensor_msgs/Imu.h"
 #include "nav_msgs/Odometry.h"
-#include "navXTimeSync/AHRS.h"
+#include "../../navXTimeSync/AHRS.h"
 #include "navx_publisher/stampedUInt64.h"
 #include <tf/transform_datatypes.h>
 
@@ -167,11 +167,12 @@ int main(int argc, char **argv)
 			//pull orientation data from NavX
 			//all in one shot
 			// TODO - revise to use fusedHeading for nx_yaw
-			nx.GetRPYQAccel(nx_roll, nx_pitch, nx_yaw,
+			
+			/*nx.GetRPYQAccel(nx_roll, nx_pitch, nx_yaw,
 							nx_qx, nx_qy, nx_qz, nx_qw,
 							nx_ax, nx_ay, nx_az,
 							nx_stamp);
-
+			*/
 			nx_roll  *=  -M_PI / 180.;
 			nx_pitch *=   M_PI / 180.;
 			nx_yaw   *=  -M_PI / 180.;

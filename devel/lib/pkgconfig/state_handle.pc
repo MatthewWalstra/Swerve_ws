@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel
+
+Name: state_handle
+Description: Description of state_handle
+Version: 0.0.0
+Cflags: -I/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/state_handle/include
+Libs: -L${prefix}/lib 
+Requires: hardware_interface roscpp

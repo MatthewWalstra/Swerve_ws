@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel
+
+Name: static_controller
+Description: Description of static_controller
+Version: 0.0.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

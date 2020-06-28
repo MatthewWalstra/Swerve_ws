@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel
+
+Name: navx_publisher
+Description: Description of navx_publisher
+Version: 0.0.0
+Cflags: -I/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime

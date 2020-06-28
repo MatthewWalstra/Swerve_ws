@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/install
+
+Name: talon_swerve_drive_controller
+Description: Description of talon_swerve_drive_controller
+Version: 0.13.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: controller_interface

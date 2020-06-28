@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel
+
+Name: frc_interfaces
+Description: Description of frc_interfaces
+Version: 0.0.0
+Cflags: -I/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/frc_interfaces/include
+Libs: -L${prefix}/lib 
+Requires: state_handle roscpp

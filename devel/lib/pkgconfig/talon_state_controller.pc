@@ -1,0 +1,8 @@
+prefix=/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/devel
+
+Name: talon_state_controller
+Description: Description of talon_state_controller
+Version: 0.0.1
+Cflags: -I/home/matthew-walstra/Rover_Nano_Swerve/Swerve_ws/src/talon_state_controller/include
+Libs: -L${prefix}/lib 
+Requires: realtime_tools roscpp hardware_interface pluginlib controller_interface sensor_msgs message_runtime talon_state_msgs
