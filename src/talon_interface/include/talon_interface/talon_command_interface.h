@@ -267,17 +267,17 @@ class TalonHWCommand
 			return mode_;
 		}
 
-		void setP(double oldP, size_t index)
+		void setP(double pp, size_t index)
 		{
 			if (index >= TALON_PIDF_SLOTS)
 			{
 				ROS_WARN("Invalid index passed to TalonHWCommand::setP()");
 				return;
 			}
-			if (oldP != p_[index])
+			if (pp != p_[index])
 			{
 				pidf_changed_[index] = true;
-				p_[index] = oldP;
+				p_[index] = pp;
 			}
 		}
 		double getP(size_t index) const
