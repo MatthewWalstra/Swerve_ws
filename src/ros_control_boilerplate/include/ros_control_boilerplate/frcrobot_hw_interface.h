@@ -52,10 +52,6 @@
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 #include <ctre/phoenix/motorcontrol/can/TalonFX.h>
 
-#include <frc/Joystick.h>
-
-#include <AHRS.h>
-
 
 namespace frcrobot_control
 {
@@ -125,15 +121,11 @@ class FRCRobotHWInterface : public ros_control_boilerplate::FRCRobotInterface
 		bool safeTalonCall(ctre::phoenix::ErrorCode error_code,
 				const std::string &talon_method_name);
 
-		double navX_zero_;
 
 		//certain data will be read at a slower rate than the main loop, for computational efficiency
 		//robot iteration calls - sending stuff to driver station
 		double t_prev_robot_iteration_;
 		double robot_iteration_hz_;
-
-		double t_prev_joystick_read_;
-		double joystick_read_hz_;
 
 		double t_prev_match_data_read_;
 		double match_data_read_hz_;
@@ -148,15 +140,9 @@ class FRCRobotHWInterface : public ros_control_boilerplate::FRCRobotInterface
 		std::vector<std::shared_ptr<hardware_interface::TalonHWState>> ctre_mc_read_thread_states_;
 		std::vector<std::thread> ctre_mc_read_threads_;
 		void ctre_mc_read_thread(std::shared_ptr<ctre::phoenix::motorcontrol::IMotorController> ctre_mc, std::shared_ptr<hardware_interface::TalonHWState> state, std::shared_ptr<std::mutex> mutex, std::unique_ptr<Tracer> tracer);
-
-		std::vector<std::shared_ptr<AHRS>> navXs_;
 	
 		std::thread motion_profile_thread_;
 		std::vector<std::shared_ptr<std::mutex>> motion_profile_mutexes_;
-
-
-		std::vector<std::shared_ptr<frc::Joystick>> joysticks_;
-		std::vector<std::unique_ptr<realtime_tools::RealtimePublisher<sensor_msgs::Joy>>> realtime_pub_joysticks_;
 
 		Tracer read_tracer_;
 };  // class

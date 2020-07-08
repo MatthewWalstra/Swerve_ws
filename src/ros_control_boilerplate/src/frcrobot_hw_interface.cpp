@@ -76,18 +76,6 @@
 #include "ros_control_boilerplate/frcrobot_hw_interface.h"
 #include "ros_control_boilerplate/tracer.h"
 
-//HAL / wpilib includes
-#include <HALInitializer.h>
-#include <networktables/NetworkTable.h>
-#include <hal/CAN.h>
-#include <hal/Compressor.h>
-#include <hal/PDP.h>
-#include <hal/Power.h>
-#include <hal/Solenoid.h>
-#include <frc/Joystick.h>
-#include <frc/DriverStation.h>
-#include <frc/SPI.h>
-
 #include <ctre/phoenix/motorcontrol/SensorCollection.h>
 #include <ctre/phoenix/platform/Platform.h>
 #include <ctre/phoenix/cci/Unmanaged_CCI.h>
@@ -218,76 +206,12 @@ void FRCRobotHWInterface::init(void)
 		ctre_mc_read_thread_states_.push_back(nullptr);
 	}
 
-
-	//RIGHT NOW THIS WILL ONLY WORK IF THERE IS ONLY ONE NAVX INSTANTIATED
-	for(size_t i = 0; i < num_navX_; i++)
-	{
-		ROS_INFO_STREAM_NAMED("frcrobot_hw_interface",
-				"Loading joint " << i << "=" << navX_names_[i] <<
-				" as navX id " << navX_ids_[i] <<
-				" local = " << navX_locals_[i]);
-		//TODO: fix how we use ids
-
-		if (navX_locals_[i])
-			navXs_.push_back(std::make_shared<AHRS>(frc::SPI::Port::kMXP));
-		else
-			navXs_.push_back(nullptr);
-
-		// This is a guess so TODO : get better estimates
-		imu_orientation_covariances_[i] = {0.0015, 0.0, 0.0, 0.0, 0.0015, 0.0, 0.0, 0.0, 0.0015};
-		imu_angular_velocity_covariances_[i] = {0.0015, 0.0, 0.0, 0.0, 0.0015, 0.0, 0.0, 0.0, 0.0015};
-		imu_linear_acceleration_covariances_[i] ={0.0015, 0.0, 0.0, 0.0, 0.0015, 0.0, 0.0, 0.0, 0.0015};
-		break; // TODO : only support 1 for now - if we need more, need to define
-		       // the interface in config files somehow
-	}
-
-
-	// No real init needed here, just report the config loaded for them
-	for (size_t i = 0; i < num_rumbles_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_hw_interface",
-							  "Loading joint " << i << "=" << rumble_names_[i] <<
-							  (rumble_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (rumble_local_hardwares_[i] ? "local" : "remote") << " hardware" <<
-							  " as Rumble with port" << rumble_ports_[i]);
-
-	
-	for (size_t i = 0; i < num_joysticks_; i++)
-	{
-		ROS_INFO_STREAM_NAMED("frcrobot_hw_interface",
-							  "Loading joint " << i << "=" << joystick_names_[i] <<
-							  " local = " << joystick_locals_[i] <<
-							  " as joystick with ID " << joystick_ids_[i]);
-		if (joystick_locals_[i])
-		{
-			joysticks_.push_back(std::make_shared<frc::Joystick>(joystick_ids_[i]));
-			std::stringstream pub_name;
-			// TODO : maybe use pub_names instead, or joy id unconditionally?
-			pub_name << "joystick_states_raw";
-			if (num_joysticks_ > 1)
-				pub_name << joystick_ids_[i];
-			realtime_pub_joysticks_.push_back(std::make_unique<realtime_tools::RealtimePublisher<sensor_msgs::Joy>>(nh_, pub_name.str(), 1));
-		}
-		else
-		{
-			joysticks_.push_back(nullptr);
-			realtime_pub_joysticks_.push_back(nullptr);
-		}
-	}
-
-	navX_zero_ = -10000;
-
 	double t_now = ros::Time::now().toSec();
 
 	t_prev_robot_iteration_ = t_now;
 	if(! nh_.getParam("generic_hw_control_loop/robot_iteration_hz", robot_iteration_hz_)) {
 		ROS_ERROR("Failed to read robot_iteration_hz in frcrobot_hw_interface");
 		robot_iteration_hz_ = 20;
-	}
-
-	t_prev_joystick_read_ = t_now;
-	if(! nh_.getParam("generic_hw_control_loop/joystick_read_hz", joystick_read_hz_)) {
-		ROS_ERROR("Failed to read joystick_read_hz in frcrobot_hw_interface");
-		joystick_read_hz_ = 50;
 	}
 
 	t_prev_robot_controller_read_ = t_now;
@@ -598,107 +522,6 @@ void FRCRobotHWInterface::read(ros::Duration &/*elapsed_time*/)
 {
 	read_tracer_.start_unique("Check for ready");
 
-	if (robot_code_ready_)
-	{
-		read_tracer_.start_unique("OneIteration");
-		//check if sufficient time has passed since last read
-
-		read_tracer_.start_unique("joysticks");
-		//check if sufficient time has passed since last read
-		if(ros::Time::now().toSec() - t_prev_joystick_read_ > (1/joystick_read_hz_))
-		{
-			t_prev_joystick_read_ += 1/joystick_read_hz_;
-
-			auto time_now_t = ros::Time::now();
-			for (size_t i = 0; i < num_joysticks_; i++)
-			{
-				if (realtime_pub_joysticks_[i]->trylock())
-				{
-					auto &m = realtime_pub_joysticks_[i]->msg_;
-					m.header.stamp = time_now_t;
-
-					m.axes.clear();
-					m.buttons.clear();
-
-					for(int j = 0; j < joysticks_[i]->GetAxisCount(); j++)
-					{
-						m.axes.push_back(joysticks_[i]->GetRawAxis(j));
-					}
-
-					for(int j = 0; j < joysticks_[i]->GetButtonCount(); j++)
-					{
-						m.buttons.push_back(joysticks_[i]->GetRawButton(j+1));
-					}
-
-					bool direction_up = false;
-					bool direction_down = false;
-					bool direction_left = false;
-					bool direction_right = false;
-					switch (joysticks_[i]->GetPOV(0))
-					{
-						case 0 :
-							direction_up = true;
-							break;
-						case 45:
-							direction_up = true;
-							direction_right = true;
-							break;
-						case 90:
-							direction_right = true;
-							break;
-						case 135:
-							direction_down = true;
-							direction_right = true;
-							break;
-						case 180:
-							direction_down = true;
-							break;
-						case 225:
-							direction_down = true;
-							direction_left = true;
-							break;
-						case 270:
-							direction_left = true;
-							break;
-						case 315:
-							direction_up = true;
-							direction_left = true;
-							break;
-					}
-
-					if(direction_left)
-					{
-						m.axes.push_back(1.0);
-					}
-					else if (direction_right)
-					{
-						m.axes.push_back(-1.0);
-					}
-					else
-					{
-						m.axes.push_back(0.0);
-					}
-
-					if(direction_up)
-					{
-						m.axes.push_back(1.0);
-					}
-					else if (direction_down)
-					{
-						m.axes.push_back(-1.0);
-					}
-					else
-					{
-						m.axes.push_back(0.0);
-					}
-					realtime_pub_joysticks_[i]->unlockAndPublish();
-				}
-			}
-
-		}
-		
-	}
-
 	read_tracer_.start_unique("can talons");
 	for (std::size_t joint_id = 0; joint_id < num_can_ctre_mcs_; ++joint_id)
 	{
@@ -747,62 +570,6 @@ void FRCRobotHWInterface::read(ros::Duration &/*elapsed_time*/)
 		}
 	}
 
-	read_tracer_.start_unique("navX");
-	//navX read here
-	for (size_t i = 0; i < num_navX_; i++)
-	{
-		if (navX_locals_[i])
-		{
-			// TODO : double check we're reading
-			// the correct data
-
-			// navXs_[i]->GetFusedHeading();
-			// navXs_[i]->GetPitch();
-			// navXs_[i]->GetRoll();
-
-			// TODO : Fill in imu_angular_velocity[i][]
-
-			//navXs_[i]->IsCalibrating();
-			//navXs_[i]->IsConnected();
-			//navXs_[i]->GetLastSensorTimestamp();
-			//
-			imu_linear_accelerations_[i][0] = navXs_[i]->GetWorldLinearAccelX();
-			imu_linear_accelerations_[i][1] = navXs_[i]->GetWorldLinearAccelY();
-			imu_linear_accelerations_[i][2] = navXs_[i]->GetWorldLinearAccelZ();
-
-			//navXs_[i]->IsMoving();
-			//navXs_[i]->IsRotating();
-			//navXs_[i]->IsMagneticDisturbance();
-			//navXs_[i]->IsMagnetometerCalibrated();
-			//
-			tf2::Quaternion tempQ;
-			if(i == 0)
-			{
-				if(navX_zero_ != -10000)
-					offset_navX_[i] = navX_zero_ - navXs_[i]->GetYaw() / 360. * 2. * M_PI;
-			}
-			tempQ.setRPY(navXs_[i]->GetRoll() / -360 * 2 * M_PI, navXs_[i]->GetPitch() / -360 * 2 * M_PI, navXs_[i]->GetYaw() / 360 * 2 * M_PI + offset_navX_[i]  );
-
-			imu_orientations_[i][3] = tempQ.w();
-			imu_orientations_[i][0] = tempQ.x();
-			imu_orientations_[i][1] = tempQ.y();
-			imu_orientations_[i][2] = tempQ.z();
-
-			imu_angular_velocities_[i][0] = navXs_[i]->GetVelocityX();
-			imu_angular_velocities_[i][1] = navXs_[i]->GetVelocityY();
-			imu_angular_velocities_[i][2] = navXs_[i]->GetVelocityZ();
-
-			//navXs_[i]->GetDisplacementX();
-			//navXs_[i]->GetDisplacementY();
-			//navXs_[i]->GetDisplacementZ();
-			//navXs_[i]->GetAngle(); //continous
-			//TODO: add setter functions
-
-			navX_state_[i] = offset_navX_[i];
-		}
-	}
-
-	
 	read_tracer_.stop();
 	ROS_INFO_STREAM_THROTTLE(60, read_tracer_.report());
 }
@@ -1042,7 +809,6 @@ bool FRCRobotHWInterface::safeTalonCall(ctre::phoenix::ErrorCode error_code, con
 void FRCRobotHWInterface::write(ros::Duration &elapsed_time)
 {
 	// Was the robot enabled last time write was run?
-	static bool last_robot_enabled = false;
 
 #if 0
 	if (!run_hal_robot_ && num_can_ctre_mcs_)
@@ -1886,23 +1652,6 @@ void FRCRobotHWInterface::write(ros::Duration &elapsed_time)
 		}
 		talon_command_[joint_id].unlock();
 	}
-
-	//TODO: figure out Rumbles
-
-	for (size_t i = 0; i < num_rumbles_; i++)
-	{
-		if (rumble_state_[i] != rumble_command_[i])
-		{
-			const unsigned int rumbles = *((unsigned int*)(&rumble_command_[i]));
-			const unsigned int left_rumble  = (rumbles >> 16) & 0xFFFF;
-			const unsigned int right_rumble = (rumbles      ) & 0xFFFF;
-			if (rumble_local_hardwares_[i])
-				//HAL_SetJoystickOutputs(rumble_ports_[i], 0, left_rumble, right_rumble);
-			rumble_state_[i] = rumble_command_[i];
-			ROS_INFO_STREAM("Wrote rumble " << i << "=" << rumble_command_[i]);
-		}
-	}
-
 	
 }
 

@@ -167,27 +167,9 @@ class FRCRobotInterface : public hardware_interface::RobotHW
 		std::vector<bool>        can_ctre_mc_is_talon_srx_;
 		std::size_t              num_can_ctre_mcs_;
 
-		std::vector<std::string> rumble_names_;
-		std::vector<int>         rumble_ports_;
-		std::vector<int>         rumble_local_updates_;
-		std::vector<int>         rumble_local_hardwares_;
-		std::size_t              num_rumbles_;
-
-		std::vector<std::string> navX_names_;
-		std::vector<std::string> navX_frame_ids_;
-		std::vector<int>         navX_ids_;
-		std::vector<bool>        navX_locals_;
-
-		std::size_t              num_navX_;
-
 		std::vector<std::string> ready_signal_names_;
 		std::vector<bool>        ready_signal_locals_;
 		std::size_t              num_ready_signals_;
-
-		std::vector<std::string> joystick_names_;
-		std::vector<int>         joystick_ids_; // pretty sure this is montonic increasing by default?
-		std::vector<bool>        joystick_locals_;
-		std::size_t              num_joysticks_;
 
 		std::string can_interface_;
 
@@ -196,24 +178,10 @@ class FRCRobotInterface : public hardware_interface::RobotHW
 		// Array holding master cached state of hardware
 		// resources
 		std::vector<hardware_interface::TalonHWState>  talon_state_;
-		
-		std::vector<double> rumble_state_; //No actual data
-		std::vector<double> navX_state_;
-
-		// Each entry in the vector is an array. That array holds
-		// the data returned from one particular imu
-		std::vector<std::array<double,4>> imu_orientations_; // x,y,z,w
-		std::vector<std::array<double,9>> imu_orientation_covariances_; // [x,y,z] x [x,y,z]
-		std::vector<std::array<double,3>> imu_angular_velocities_; //x,y,z
-		std::vector<std::array<double,9>> imu_angular_velocity_covariances_;
-		std::vector<std::array<double,3>> imu_linear_accelerations_; // x,y,z
-		std::vector<std::array<double,9>> imu_linear_acceleration_covariances_;
-
+	
 		// Same as above, but for pending commands to be
 		// written to the hardware
 		std::vector<hardware_interface::TalonHWCommand>  talon_command_;
-		std::vector<double> rumble_command_;
-        std::vector<double> offset_navX_;
 
 		std::vector<double> robot_ready_signals_;
 		bool                robot_code_ready_;

@@ -4,8 +4,6 @@
 #include <ctre/phoenix/cci/Platform_CCI.h> // c_SimCreate
 #include <ctre/phoenix/cci/Unmanaged_CCI.h> // c_FeedEnable
 
-#include <HALInitializer.h>
-
 namespace frcrobot_control
 {
 FRCRobotPhoenixSimInterface::FRCRobotPhoenixSimInterface(ros::NodeHandle &nh, urdf::Model *urdf_model)
@@ -27,7 +25,6 @@ void FRCRobotPhoenixSimInterface::init(void)
 	// this may not be necessary anymore
 	ros::Duration(1.0).sleep();
 
-	hal::init::InitializeHAL();
 	FRCRobotHWInterface::init();
 }
 

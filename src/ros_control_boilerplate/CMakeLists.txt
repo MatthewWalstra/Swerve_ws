@@ -113,43 +113,14 @@ set (FRCROBOT_HW_MAIN_SRCS
 	src/frcrobot_hw_interface.cpp
 )
 
+#for CTRE
 set (WPI_SYSROOT $ENV{HOME}/wpilib/2020/roborio/arm-frc2020-linux-gnueabi)
 include_directories(
 	${catkin_INCLUDE_DIRS}
-	${WPI_SYSROOT}/include/wpilib
 	${WPI_SYSROOT}/include
-	${WPI_SYSROOT}/include/navx
 )
 
-# Base regardless of OS type
-set (WPI_BASE_LIB_DIR ${WPI_SYSROOT}/lib/wpilib/linux)
-
-# Rio-only code
-if ("${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
-	set (CTRE_LIB_DIR ${WPI_SYSROOT}/lib/ctre/linux/athena/static)
-
-	# Link against wpi user libraries for CAN talon and navX-MXP code and
-	# wpilib for HAL, driver station, and so on
-	set (WPI_SHARED_LIB_DIR ${WPI_BASE_LIB_DIR}/athena/shared)
-	set (PLATFORM_SPECIFIC_LIBS
-		${WPI_SHARED_LIB_DIR}/libntcore.so
-		${WPI_SHARED_LIB_DIR}/libwpilibc.so
-		${WPI_SHARED_LIB_DIR}/libwpiHal.so
-		${WPI_SHARED_LIB_DIR}/libwpiutil.so
-		${WPI_SHARED_LIB_DIR}/libvisa.so
-		${WPI_SHARED_LIB_DIR}/libFRC_NetworkCommunication.so.20.0.0
-		${WPI_SHARED_LIB_DIR}/libNiFpga.so.19.0.0
-		${WPI_SHARED_LIB_DIR}/libNiFpgaLv.so.19.0.0
-		${WPI_SHARED_LIB_DIR}/libRoboRIO_FRC_ChipObject.so.20.0.0
-		${WPI_SHARED_LIB_DIR}/libNiRioSrv.so.19.0.0
-		${WPI_SHARED_LIB_DIR}/libniriodevenum.so.19.0.0
-		${WPI_SHARED_LIB_DIR}/libniriosession.so.18.0.0
-		${WPI_SHARED_LIB_DIR}/libni_emb.so.12.0.0
-		${WPI_SHARED_LIB_DIR}/libnirio_emb_can.so.16.0.0
-		${WPI_SHARED_LIB_DIR}/libni_rtlog.so.2.8.0
-		${WPI_SYSROOT}/lib/navx/linux/athena/static/libnavx_frc.a
-	)
-elseif ("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") # Jetson TK1
+if ("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") # Jetson TK1
 	set (CTRE_LIB_DIR ${WPI_SYSROOT}/lib/ctre/linux/raspbian/static)    # Who knows if this will work
 elseif ("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu") # Jetson TX1/TX2
 	set (CTRE_LIB_DIR ${WPI_SYSROOT}/lib/ctre/linux/jetsontx/static)
@@ -165,10 +136,6 @@ set (CTRE_USER_LIBS
 	${CTRE_LIB_DIR}/libCTRE_PhoenixCore.a
 )
 
-set (ALLWPILIB ../../allwpilib)
-# Used to find HALInitializer from wpilib internal repo
-include_directories(${ALLWPILIB}/hal/src/main/native/athena)
-
 # Add socketcan library to everything but the Rio
 # This adds code to use linux CAN sockets to talk to
 # the CAN bus for the Jetson
@@ -180,39 +147,49 @@ if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
 		${CTRE_LIB_DIR}/libCTRE_PhoenixPlatform_socketcan.a
 	)
 
-	set (FRCROBOT_HW_MAIN_SRCS ${FRCROBOT_HW_MAIN_SRCS} 
-		src/dummy_wpilib_common.cpp
-		src/dummy_wpilib_hw.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/Compressor.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/CANAPI.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/HALInitializer.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/PCMInternal.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/PDP.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/Solenoid.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/ctre/PCM.cpp
-		${ALLWPILIB}/hal/src/main/native/athena/ctre/CtreCanNode.cpp
-		${ALLWPILIB}/hal/src/main/native/cpp/handles/HandlesInternal.cpp
-		${ALLWPILIB}/wpilibc/src/main/native/cpp/Joystick.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/raw_ostream.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/Error.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/ErrorHandling.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/Hashing.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/ManagedStatic.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/NativeFormatting.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/Path.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/SmallVector.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/StringRef.cpp
-		${ALLWPILIB}/wpiutil/src/main/native/cpp/llvm/Twine.cpp
-	)
-
-	file(GLOB
-		ntcore_native_src ${ALLWPILIB}/ntcore/src/main/native/cpp/*.cpp
-		ntcore_native_src ${ALLWPILIB}/ntcore/src/main/native/cpp/networktables/*.cpp
-		ntcore_native_src ${ALLWPILIB}/ntcore/src/main/native/cpp/tables/*.cpp
-	)
-
 	#Phoenix_sim_main goes here
-	
+	if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+		      "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+		add_executable(frcrobot_phoenixsim_main
+			src/frcrobot_phoenixsim_interface.cpp
+			src/frcrobot_phoenixsim_main.cpp
+			src/frcrobot_hw_interface.cpp
+		)
+
+		if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+				  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+			set (CTRE_DIAGNOSTIC_LIBS 
+				${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
+			)
+		endif()
+		target_link_libraries(frcrobot_phoenixsim_main
+			${catkin_LIBRARIES}
+			${CTRE_LIB_DIR}/libCTRE_Phoenix.a
+			${CTRE_LIB_DIR}/libCTRE_PhoenixCanutils.a
+			${CTRE_LIB_DIR}/libCTRE_PhoenixCCI.a
+			${CTRE_LIB_DIR}/libCTRE_PhoenixCore.a
+			${CTRE_LIB_DIR}/../shared/libCTRE_PhoenixPlatform_sim.so
+			${CTRE_DIAGNOSTIC_LIBS}
+			frc_robot_interface
+		)
+		## Add cmake target dependencies of the executable
+		## same as for the library above. This is needed to force
+		## talon controller messages to be built before the
+		## talon controller code tries to use them
+		add_dependencies(frcrobot_phoenixsim_main
+			${${PROJECT_NAME}_EXPORTED_TARGETS}
+			${catkin_EXPORTED_TARGETS}
+		)
+
+		# Install executable on the off chance you'd ever
+		# want to run sim on the RoboRIO
+		install(TARGETS
+		  frcrobot_phoenixsim_main
+		  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+		  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+		)
+	endif()
+
 	#end Phoenix_sim_main
 endif()
 

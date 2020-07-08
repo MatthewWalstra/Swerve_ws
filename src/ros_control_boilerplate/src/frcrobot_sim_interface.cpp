@@ -417,34 +417,7 @@ FRCRobotSimInterface::~FRCRobotSimInterface()
 {
     sim_joy_thread_.join();
 }
-/*
-void FRCRobotSimInterface::match_data_callback(const frc_msgs::MatchSpecificData &match_data) {
-	std::lock_guard<std::mutex> l(match_data_mutex_);
-	match_data_.setMatchTimeRemaining(match_data.matchTimeRemaining);
-	match_data_.setGameSpecificData(match_data.gameSpecificData);
-	match_data_.setEventName(match_data.eventName);
-	match_data_.setAllianceColor(match_data.allianceColor);
-	match_data_.setMatchType(match_data.matchType);
-	match_data_.setDriverStationLocation(match_data.driverStationLocation);
-	match_data_.setMatchNumber(match_data.matchNumber);
-	match_data_.setReplayNumber(match_data.replayNumber);
-	match_data_.setEnabled(match_data.Enabled);
-	match_data_.setDisabled(match_data.Disabled);
-	match_data_.setAutonomous(match_data.Autonomous);
-	match_data_.setDSAttached(match_data.DSAttached);
-	match_data_.setFMSAttached(match_data.FMSAttached);
-	match_data_.setOperatorControl(match_data.OperatorControl);
-	match_data_.setTest(match_data.Test);
-	match_data_.setBatteryVoltage(match_data.BatteryVoltage);
-}
 
-std::vector<ros_control_boilerplate::DummyJoint> FRCRobotSimInterface::getDummyJoints(void)
-{
-	std::vector<ros_control_boilerplate::DummyJoint> dummy_joints;
-	dummy_joints.push_back(Dumify(navX_zero_));
-	return dummy_joints;
-}
-*/
 bool FRCRobotSimInterface::setlimit(ros_control_boilerplate::set_limit_switch::Request &req,ros_control_boilerplate::set_limit_switch::Response &/*res*/)
 {
 	for (std::size_t joint_id = 0; joint_id < num_can_ctre_mcs_; ++joint_id)
@@ -496,20 +469,6 @@ void FRCRobotSimInterface::init(void)
 	}
 		ROS_WARN_STREAM("fails here? ~");
 	
-	for(size_t i = 0; i < num_navX_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << navX_names_[i] <<
-							  " local = " << navX_locals_[i] <<
-							  " as navX id" << navX_ids_[i]);
-
-	
-	for (size_t i = 0; i < num_rumbles_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << rumble_names_[i] <<
-							  (rumble_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (rumble_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as Rumble with port" << rumble_ports_[i]);
-
 	// TODO : make this depend on joystick joints being defined
 	sim_joy_thread_ = std::thread(std::bind(&TeleopJointsKeyboard::keyboardLoop, &teleop_joy_));
 
@@ -924,21 +883,6 @@ void FRCRobotSimInterface::write(ros::Duration &elapsed_time)
 		tc.unlock();
 	}
 	last_robot_enabled = robot_enabled;
-
-	for (size_t i = 0; i < num_rumbles_; i++)
-	{
-		if (rumble_state_[i] != rumble_command_[i])
-		{
-			const unsigned int rumbles = *((unsigned int*)(&rumble_command_[i]));
-			const unsigned int left_rumble  = (rumbles >> 16) & 0xFFFF;
-			const unsigned int right_rumble = (rumbles      ) & 0xFFFF;
-			rumble_state_[i] = rumble_command_[i];
-
-			ROS_INFO_STREAM("Joystick at port " << rumble_ports_[i] <<
-				" left rumble = " << std::dec << left_rumble << "(" << std::hex << left_rumble <<
-				") right rumble = " << std::dec << right_rumble << "(" << std::hex << right_rumble <<  ")" << std::dec);
-		}
-	}
 
 	
 	//ROS_INFO_STREAM_THROTTLE(1, s.str());

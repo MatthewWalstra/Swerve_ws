@@ -78,8 +78,6 @@ FRCRobotInterface::FRCRobotInterface(ros::NodeHandle &nh, urdf::Model *urdf_mode
 	  name_("generic_hw_interface")
 	, nh_(nh)
 	, num_can_ctre_mcs_(0)
-	, num_rumbles_(0)
-	, num_navX_(0)
     , num_ready_signals_(0)
 	, robot_code_ready_(false)
 {
@@ -160,99 +158,6 @@ FRCRobotInterface::FRCRobotInterface(ros::NodeHandle &nh, urdf::Model *urdf_mode
 			can_ctre_mc_local_hardwares_.push_back(local_hardware);
 			can_ctre_mc_is_talon_srx_.push_back(joint_type == "can_talon_srx");
 		}
-		else if (joint_type == "rumble")
-		{
-			readJointLocalParams(joint_params, local, saw_local_keyword, local_update, local_hardware);
-
-			const bool has_rumble_port = joint_params.hasMember("rumble_port");
-			if (local_hardware && !has_rumble_port)
-				throw std::runtime_error("A rumble_port was specified for non-local hardware for joint " + joint_name);
-			int rumble_port = 0;
-			if (local_hardware)
-			{
-				if (!has_rumble_port)
-					throw std::runtime_error("A rumble_port was not specified for joint " + joint_name);
-				XmlRpc::XmlRpcValue &xml_rumble_port = joint_params["rumble_port"];
-				if (!xml_rumble_port.valid() ||
-						xml_rumble_port.getType() != XmlRpc::XmlRpcValue::TypeInt)
-					throw std::runtime_error("An invalid joint rumble_port was specified (expecting an int) for joint " + joint_name);
-				rumble_port = xml_rumble_port;
-
-				auto it = std::find(rumble_ports_.cbegin(), rumble_ports_.cend(), rumble_port);
-				if (it != rumble_ports_.cend())
-					throw std::runtime_error("A duplicate rumble port was specified for joint " + joint_name);
-			}
-
-			rumble_names_.push_back(joint_name);
-			rumble_ports_.push_back(rumble_port);
-			rumble_local_updates_.push_back(local_update);
-			rumble_local_hardwares_.push_back(local_hardware);
-		}
-		else if (joint_type == "navX")
-		{
-			// TODO : id might instead be a string - MXP, USB, etc
-			// telling where the navX is attached?
-			const bool has_id = joint_params.hasMember("id");
-			if (!local && has_id)
-				throw std::runtime_error("A navX id was specified for non-local hardware for joint " + joint_name);
-			int navX_id = 0;
-			if (local)
-			{
-				if (!has_id)
-					throw std::runtime_error("A navX id was not specified for joint " + joint_name);
-				XmlRpc::XmlRpcValue &xml_navX_id = joint_params["id"];
-				if (!xml_navX_id.valid() ||
-						xml_navX_id.getType() != XmlRpc::XmlRpcValue::TypeInt)
-					throw std::runtime_error("An invalid joint id was specified (expecting an int) for joint " + joint_name);
-				navX_id = xml_navX_id;
-				auto it = std::find(navX_ids_.cbegin(), navX_ids_.cend(), navX_id);
-				if (it != navX_ids_.cend())
-					throw std::runtime_error("A duplicate navX_id was specified for joint " + joint_name);
-			}
-
-			const bool has_frame_id = joint_params.hasMember("id");
-			if (!local && has_frame_id)
-				throw std::runtime_error("A navX frame_id was specified for non-local hardware for joint " + joint_name);
-			std::string frame_id;
-			if (local)
-			{
-				if (!has_frame_id)
-					throw std::runtime_error("A navX frame_id was not specified for joint " + joint_name);
-				XmlRpc::XmlRpcValue &xml_joint_frame_id= joint_params["frame_id"];
-				if (!xml_joint_frame_id.valid() ||
-						xml_joint_frame_id.getType() != XmlRpc::XmlRpcValue::TypeString)
-					throw std::runtime_error("An invalid navX frame_id was specified (expecting a string) for joint " + joint_name);
-				frame_id = std::string(xml_joint_frame_id);
-			}
-
-			navX_names_.push_back(joint_name);
-			navX_frame_ids_.push_back(frame_id);
-			navX_ids_.push_back(navX_id);
-			navX_locals_.push_back(local);
-		}
-		else if (joint_type == "joystick")
-		{
-			const bool has_id = joint_params.hasMember("id");
-			if (!local && has_id)
-				throw std::runtime_error("A joystick ID was specified for non-local hardware for joint " + joint_name);
-			int id = 0;
-			if (local)
-			{
-				if (!has_id)
-					throw std::runtime_error("A joystick ID was not specified for joint " + joint_name);
-				XmlRpc::XmlRpcValue &xml_id = joint_params["id"];
-				if (!xml_id.valid() ||
-						xml_id.getType() != XmlRpc::XmlRpcValue::TypeInt)
-					throw std::runtime_error("An invalid joystick id was specified (expecting an int) for joint " + joint_name);
-				id = xml_id;
-				auto it = std::find(joystick_ids_.cbegin(), joystick_ids_.cend(), id);
-				if (it != joystick_ids_.cend())
-					throw std::runtime_error("A duplicate joystick ID was specified for joint " + joint_name);
-			}
-			joystick_names_.push_back(joint_name);
-			joystick_ids_.push_back(id);
-			joystick_locals_.push_back(local);
-		}
 		else
 		{
 			std::stringstream s;
@@ -306,72 +211,6 @@ void FRCRobotInterface::init()
 		custom_profile_state_.push_back(CustomProfileState());
 	}
 
-	num_rumbles_ = rumble_names_.size();
-	rumble_state_.resize(num_rumbles_);
-	rumble_command_.resize(num_rumbles_);
-	for (size_t i = 0; i < num_rumbles_; i++)
-	{
-		ROS_INFO_STREAM_NAMED(name_, "FRCRobotInterface: Registering interface for : " << rumble_names_[i] << " at port " << rumble_ports_[i]);
-
-		rumble_state_[i] = std::numeric_limits<double>::max();
-		rumble_command_[i] = 0;
-		hardware_interface::JointStateHandle rsh(rumble_names_[i], &rumble_state_[i], &rumble_state_[i], &rumble_state_[i]);
-		joint_state_interface_.registerHandle(rsh);
-
-		hardware_interface::JointHandle rh(rsh, &rumble_command_[i]);
-		joint_position_interface_.registerHandle(rh);
-	}
-
-	// Differentiate between navX and IMU here
-	// We might want more than 1 type of IMU
-	// at some point - eventually allow this by making IMU
-	// data sized to hold results from all IMU
-	// hardware rather than just navX size
-	num_navX_ = navX_names_.size();
-	imu_orientations_.resize(num_navX_);
-	imu_orientation_covariances_.resize(num_navX_);
-	imu_angular_velocities_.resize(num_navX_);
-	imu_angular_velocity_covariances_.resize(num_navX_);
-	imu_linear_accelerations_.resize(num_navX_);
-	imu_linear_acceleration_covariances_.resize(num_navX_);
-	navX_state_.resize(num_navX_);
-	offset_navX_.resize(num_navX_);
-
-	for (size_t i = 0; i < num_navX_; i++)
-	{
-		ROS_INFO_STREAM_NAMED(name_, "FRCRobotInterface: Registering navX interface for : " << navX_names_[i] << " at id " << navX_ids_[i]);
-
-		// Create state interface for the given IMU
-		// and point it to the data stored in the
-		// corresponding imu arrays
-		hardware_interface::ImuSensorHandle::Data imu_data;
-		imu_data.name = navX_names_[i];
-		imu_data.frame_id = navX_frame_ids_[i];
-		for (size_t j = 0; j < 3; j++)
-		{
-			imu_orientations_[i][j] = 0;
-			imu_angular_velocities_[i][j] = 0;
-			imu_linear_accelerations_[i][j] = 0;
-		}
-		imu_orientations_[i][3] = 1;
-		imu_data.orientation = &imu_orientations_[i][0];
-		imu_data.orientation_covariance = &imu_orientation_covariances_[i][0];
-		imu_data.angular_velocity = &imu_angular_velocities_[i][0];
-		imu_data.angular_velocity_covariance = &imu_angular_velocity_covariances_[i][0];
-		imu_data.linear_acceleration = &imu_linear_accelerations_[i][0];
-		imu_data.linear_acceleration_covariance = &imu_linear_acceleration_covariances_[i][0];
-
-		hardware_interface::ImuSensorHandle imuh(imu_data);
-		imu_interface_.registerHandle(imuh);
-
-		// Set up a command interface to set an
-		// offset for reported heading
-		hardware_interface::JointStateHandle nxsh(navX_names_[i], &navX_state_[i], &navX_state_[i], &navX_state_[i]);
-		joint_state_interface_.registerHandle(nxsh);
-		offset_navX_[i] = 0;
-	}
-
-	
 
 	// Publish various FRC-specific data using generic joint state for now
 	// For simple things this might be OK, but for more complex state
