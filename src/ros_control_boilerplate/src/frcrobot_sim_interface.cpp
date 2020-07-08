@@ -417,7 +417,7 @@ FRCRobotSimInterface::~FRCRobotSimInterface()
 {
     sim_joy_thread_.join();
 }
-
+/*
 void FRCRobotSimInterface::match_data_callback(const frc_msgs::MatchSpecificData &match_data) {
 	std::lock_guard<std::mutex> l(match_data_mutex_);
 	match_data_.setMatchTimeRemaining(match_data.matchTimeRemaining);
@@ -444,7 +444,7 @@ std::vector<ros_control_boilerplate::DummyJoint> FRCRobotSimInterface::getDummyJ
 	dummy_joints.push_back(Dumify(navX_zero_));
 	return dummy_joints;
 }
-
+*/
 bool FRCRobotSimInterface::setlimit(ros_control_boilerplate::set_limit_switch::Request &req,ros_control_boilerplate::set_limit_switch::Response &/*res*/)
 {
 	for (std::size_t joint_id = 0; joint_id < num_can_ctre_mcs_; ++joint_id)
@@ -487,7 +487,7 @@ void FRCRobotSimInterface::init(void)
 							  "Loading joint " << i << "=" << can_ctre_mc_names_[i] <<
 							  (can_ctre_mc_local_updates_[i] ? " local" : " remote") << " update, " <<
 							  (can_ctre_mc_local_hardwares_[i] ? "local" : "remote") << " hardware" <<
-							  " as " << (can_ctre_mc_is_talon_[i] ? "TalonSRX" : "VictorSPX")
+							  " as " << (can_ctre_mc_is_talon_srx_[i] ? "TalonSRX" : "TalonFX")
 							  << " CAN id " << can_ctre_mc_can_ids_[i]);
 
 		ROS_WARN_STREAM("fails here? 56789: " << i);
@@ -495,74 +495,14 @@ void FRCRobotSimInterface::init(void)
 
 	}
 		ROS_WARN_STREAM("fails here? ~");
-	// TODO : assert nidec_brushles_names_.size() == nidec_brushles_xxx_channels_.size()
-	for (size_t i = 0; i < nidec_brushless_names_.size(); i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << nidec_brushless_names_[i] <<
-							  (nidec_brushless_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (nidec_brushless_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as PWM channel " << nidec_brushless_pwm_channels_[i] <<
-							  " / DIO channel " << nidec_brushless_dio_channels_[i] <<
-							  " invert " << nidec_brushless_inverts_[i]);
-
-	for (size_t i = 0; i < num_digital_inputs_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << digital_input_names_[i] <<
-							  " local = " << digital_input_locals_[i] <<
-							  " as Digital Input " << digital_input_dio_channels_[i] <<
-							  " invert " << digital_input_inverts_[i]);
-
-	for (size_t i = 0; i < num_digital_outputs_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << digital_output_names_[i] <<
-							  (digital_output_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (digital_output_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as Digital Output " << digital_output_dio_channels_[i] <<
-							  " invert " << digital_output_inverts_[i]);
-
-	for (size_t i = 0; i < num_pwms_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << pwm_names_[i] <<
-							  (pwm_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (pwm_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as PWM " << pwm_pwm_channels_[i] <<
-							  " invert " << pwm_inverts_[i]);
-
-	ROS_WARN("fails here?5");
-	for (size_t i = 0; i < num_solenoids_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << solenoid_names_[i] <<
-							  (solenoid_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (solenoid_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as Solenoid " << solenoid_ids_[i]);
-
-	for (size_t i = 0; i < num_double_solenoids_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << double_solenoid_names_[i] <<
-							  (double_solenoid_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (double_solenoid_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as Double Solenoid  forward " << double_solenoid_forward_ids_[i] <<
-							  " reverse " << double_solenoid_reverse_ids_[i]);
-
+	
 	for(size_t i = 0; i < num_navX_; i++)
 		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
 							  "Loading joint " << i << "=" << navX_names_[i] <<
 							  " local = " << navX_locals_[i] <<
 							  " as navX id" << navX_ids_[i]);
 
-	for (size_t i = 0; i < num_analog_inputs_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << analog_input_names_[i] <<
-							  " local = " << analog_input_locals_[i] <<
-							  " as Analog Input " << analog_input_analog_channels_[i]);
-
-	for (size_t i = 0; i < num_compressors_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << compressor_names_[i] <<
-							  (compressor_local_updates_[i] ? " local" : " remote") << " update, " <<
-							  (compressor_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
-							  " as Compressor with pcm " << compressor_pcm_ids_[i]);
-
+	
 	for (size_t i = 0; i < num_rumbles_; i++)
 		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
 							  "Loading joint " << i << "=" << rumble_names_[i] <<
@@ -570,22 +510,10 @@ void FRCRobotSimInterface::init(void)
 							  (rumble_local_hardwares_[i] ? "local" : "remote") << " hardware " <<
 							  " as Rumble with port" << rumble_ports_[i]);
 
-	for (size_t i = 0; i < num_pdps_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading joint " << i << "=" << pdp_names_[i] <<
-							  " local = " << pdp_locals_[i] <<
-							  " as PDP");
-
-	for(size_t i = 0; i < num_dummy_joints_; i++)
-		ROS_INFO_STREAM_NAMED("frcrobot_sim_interface",
-							  "Loading dummy joint " << i << "=" << dummy_joint_names_[i]);
-
 	// TODO : make this depend on joystick joints being defined
-	if (run_hal_robot_)
-		sim_joy_thread_ = std::thread(std::bind(&TeleopJointsKeyboard::keyboardLoop, &teleop_joy_));
+	sim_joy_thread_ = std::thread(std::bind(&TeleopJointsKeyboard::keyboardLoop, &teleop_joy_));
 
 	limit_switch_srv_ = nh_.advertiseService("set_limit_switch",&FRCRobotSimInterface::setlimit,this);
-    match_data_sub_ = nh_.subscribe("/frcrobot_rio/match_data_in", 1, &FRCRobotSimInterface::match_data_callback, this);
 
 	linebreak_sensor_srv_ = nh_.advertiseService("linebreak_service_set",&FRCRobotSimInterface::evaluateDigitalInput, this);
 	ROS_INFO_NAMED("frcrobot_sim_interface", "FRCRobotSimInterface Ready.");
@@ -597,11 +525,6 @@ void FRCRobotSimInterface::read(ros::Duration &/*elapsed_time*/)
 	{
 		// Do nothing
     }
-	for (size_t i = 0; i < num_digital_inputs_; i++)
-	{
-		// Set using evaluateDigitalInput callback
-		// TODO - make make threadsafe using a command buffer, if needed
-	}
 
     // Simulated state is updated in write, so just
 	// display it here for debugging
@@ -625,27 +548,6 @@ void FRCRobotSimInterface::read(ros::Duration &/*elapsed_time*/)
 bool FRCRobotSimInterface::evaluateDigitalInput(ros_control_boilerplate::LineBreakSensors::Request &req,
 							ros_control_boilerplate::LineBreakSensors::Response &/*res*/)
 {
-	if (req.name.length())
-	{
-		for (size_t i = 0; i < digital_input_names_.size(); i++)
-		{
-			if (digital_input_names_[i] == req.name)
-			{
-				digital_input_state_[i] = req.value ? 1 : 0;
-				ROS_INFO_STREAM(digital_input_names_[i] << " set to " << (int)req.value);
-				break;
-			}
-		}
-	}
-	else if (req.j < digital_input_names_.size())
-	{
-		digital_input_state_[req.j] = req.value ? 1 : 0;
-		ROS_INFO_STREAM(digital_input_names_[req.j] << " set to " << (int)req.value);
-	}
-	else
-	{
-		ROS_INFO_STREAM(digital_input_names_[req.j] << " not set to " << (int)req.value << " index out of bounds");
-	}
 	return true;
 }
 
@@ -657,15 +559,9 @@ void FRCRobotSimInterface::write(ros::Duration &elapsed_time)
 			std::endl << "Command" << std::endl << printCommandHelper());
 #endif
 	// Was the robot enabled last time write was run?
-	static bool last_robot_enabled = false;
-
-	// Is match data reporting the robot enabled now?
-	bool robot_enabled = false;
-	{
-		std::lock_guard<std::mutex> l(match_data_mutex_);
-		robot_enabled = match_data_.isEnabled();
-	}
-
+	//TODO: add better robot enabled rather than default true.
+	bool robot_enabled = true;
+	bool last_robot_enabled = true;
 	for (std::size_t joint_id = 0; joint_id < num_can_ctre_mcs_; ++joint_id)
 	{
 		if (!can_ctre_mc_local_hardwares_[joint_id])
@@ -1029,71 +925,6 @@ void FRCRobotSimInterface::write(ros::Duration &elapsed_time)
 	}
 	last_robot_enabled = robot_enabled;
 
-	for (std::size_t joint_id = 0; joint_id < num_nidec_brushlesses_; ++joint_id)
-	{
-		// Assume instant acceleration for now
-		const double vel = brushless_command_[joint_id];
-		brushless_vel_[joint_id] = vel;
-	}
-	for (size_t i = 0; i < num_digital_outputs_; i++)
-	{
-		bool converted_command = (digital_output_command_[i] > 0) ^ (digital_output_inverts_[i] && digital_output_local_updates_[i]);
-		if (converted_command != digital_output_state_[i])
-		{
-			digital_output_state_[i] = converted_command;
-			ROS_INFO_STREAM("DIO " << digital_output_names_[i] <<
-					" at channel " <<  digital_output_dio_channels_[i] <<
-					" set to " << converted_command);
-		}
-	}
-	for (size_t i = 0; i < num_pwms_; i++)
-	{
-		const int setpoint = pwm_command_[i] * ((pwm_inverts_[i] & pwm_local_updates_[i]) ? -1 : 1);
-		if (pwm_state_[i] != setpoint)
-		{
-			pwm_state_[i] = setpoint;
-			ROS_INFO_STREAM("PWM " << pwm_names_[i] <<
-					" at channel " <<  pwm_pwm_channels_[i] <<
-					" set to " << pwm_state_[i]);
-		}
-	}
-
-	for (size_t i = 0; i< num_solenoids_; i++)
-	{
-		const bool setpoint = solenoid_command_[i] > 0;
-		if (solenoid_state_[i] != setpoint)
-		{
-			solenoid_state_[i] = setpoint;
-			ROS_INFO_STREAM("Solenoid " << solenoid_names_[i] <<
-							" at id " << solenoid_ids_[i] <<
-							" / pcm " << solenoid_pcms_[i] <<
-							" = " << setpoint);
-		}
-	}
-
-	for (size_t i = 0; i < num_double_solenoids_; i++)
-	{
-		// TODO - maybe check for < 0, 0, >0 and map to forward/reverse?
-		const double command = double_solenoid_command_[i];
-		double setpoint;
-		if (command >= 1.)
-			setpoint = 1.;
-		else if (command <= -1.)
-			setpoint = -1.;
-		else
-			setpoint = 0.;
-
-		if (double_solenoid_state_[i] != setpoint)
-		{
-			double_solenoid_state_[i] = setpoint;
-			ROS_INFO_STREAM("Double solenoid " << double_solenoid_names_[i] <<
-					" at forward id " << double_solenoid_forward_ids_[i] <<
-					"/ reverse id " << double_solenoid_reverse_ids_[i] <<
-					" / pcm " << double_solenoid_pcms_[i] <<
-					" = " << setpoint);
-		}
-	}
-
 	for (size_t i = 0; i < num_rumbles_; i++)
 	{
 		if (rumble_state_[i] != rumble_command_[i])
@@ -1109,25 +940,7 @@ void FRCRobotSimInterface::write(ros::Duration &elapsed_time)
 		}
 	}
 
-	for (size_t i = 0; i < num_dummy_joints_; i++)
-	{
-		if (!dummy_joint_locals_[i])
-			continue;
-		//s << dummy_joint_command_[i] << " ";
-		dummy_joint_effort_[i] = 0;
-		//if (dummy_joint_names_[i].substr(2, std::string::npos) == "_angle")
-		{
-			// position mode
-			dummy_joint_velocity_[i] = (dummy_joint_command_[i] - dummy_joint_position_[i]) / elapsed_time.toSec();
-			dummy_joint_position_[i] = dummy_joint_command_[i];
-		}
-		//else if (dummy_joint_names_[i].substr(2, std::string::npos) == "_drive")
-		{
-			// position mode
-			//dummy_joint_position_[i] += dummy_joint_command_[i] * elapsed_time.toSec();
-			//dummy_joint_velocity_[i] = dummy_joint_command_[i];
-		}
-	}
+	
 	//ROS_INFO_STREAM_THROTTLE(1, s.str());
 }
 

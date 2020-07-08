@@ -46,28 +46,13 @@
 #include <ros_control_boilerplate/tracer.h>
 #include <realtime_tools/realtime_publisher.h>
 
-#include <frc_interfaces/robot_controller_interface.h>
-#include "ros_control_boilerplate/AutoMode.h"
-#include "frc_msgs/MatchSpecificData.h"
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/Joy.h>
 
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
-#include <ctre/phoenix/motorcontrol/can/VictorSPX.h>
-#include "WPILibVersion.h"
-#include <frc/AnalogInput.h>
-#include <frc/DriverStation.h>
-#include <frc/NidecBrushless.h>
-#include <frc/DigitalInput.h>
-#include <frc/DigitalOutput.h>
-#include <frc/PWMSpeedController.h>
-#include <frc/Solenoid.h>
-#include <frc/DoubleSolenoid.h>
-#include <frc/Compressor.h>
+#include <ctre/phoenix/motorcontrol/can/TalonFX.h>
+
 #include <frc/Joystick.h>
-#include <hal/HALBase.h>
-#include <hal/DriverStation.h>
-#include <hal/FRCUsageReporting.h>
 
 #include <AHRS.h>
 
@@ -77,68 +62,6 @@ namespace frcrobot_control
 // Very simple code to communicate with the HAL. This recieves
 // packets from the driver station and lets the field management
 // know our robot is alive.
-class ROSIterativeRobot
-{
-	public:
-		ROSIterativeRobot(void) : m_ds(DriverStation::GetInstance())
-		{
-			if (!HAL_Initialize(500, 0))
-			{
-				ROS_ERROR("FATAL ERROR: HAL could not be initialized");
-				std::terminate();
-			}
-			std::FILE* file = nullptr;
-			file = std::fopen("/tmp/frc_versions/FRC_Lib_Version.ini", "w");
-
-			if (file != nullptr) {
-				std::fputs("C++ ", file);
-				std::fputs(GetWPILibVersion(), file);
-				std::fclose(file);
-			}
-
-			HAL_Report(HALUsageReporting::kResourceType_Framework, HALUsageReporting::kFramework_ROS);
-			HAL_Report(HALUsageReporting::kResourceType_RobotDrive, 900, 0, "field centric swerve");
-			//HAL_Report(HALUsageReporting::kResourceType_kKinematics, HALUsageReporting::kKinematics_SwerveDrive);
-#if 0
-			for (int i = 0; i < 900; i++)
-				HAL_Report(HALUsageReporting::kResourceType_NidecBrushless, 900);
-#endif
-			HAL_Report(HALUsageReporting::kResourceType_Language, 900, 0, "C++/CMake/Javascript/Python/Shell/PERL");
-		}
-
-		void StartCompetition(void) const
-		{
-			HAL_ObserveUserProgramStarting();
-		}
-
-		void OneIteration(void) const
-		{
-			// Call the appropriate function depending upon the current robot mode
-			if (m_ds.IsDisabled()) {
-				HAL_ObserveUserProgramDisabled();
-			} else if (m_ds.IsAutonomous()) {
-				HAL_ObserveUserProgramAutonomous();
-			} else if (m_ds.IsOperatorControl()) {
-				HAL_ObserveUserProgramTeleop();
-			} else {
-				HAL_ObserveUserProgramTest();
-			}
-		}
-	private:
-		DriverStation& m_ds;
-};
-
-class DoubleSolenoidHandle
-{
-	public:
-		DoubleSolenoidHandle(HAL_SolenoidHandle forward, HAL_SolenoidHandle reverse)
-			: forward_(forward)
-		    , reverse_(reverse)
-	{
-	}
-		HAL_SolenoidHandle forward_;
-		HAL_SolenoidHandle reverse_;
-};
 
 /// \brief Hardware interface for a robot
 class FRCRobotHWInterface : public ros_control_boilerplate::FRCRobotInterface
@@ -159,9 +82,6 @@ class FRCRobotHWInterface : public ros_control_boilerplate::FRCRobotInterface
 
 		/** \brief Write the command to the robot hardware. */
 		virtual void write(ros::Duration &elapsed_time) override;
-
-	protected:
-		virtual std::vector<ros_control_boilerplate::DummyJoint> getDummyJoints(void) override;
 
 	private:
 		void process_motion_profile_buffer_thread(double hz);
@@ -229,34 +149,14 @@ class FRCRobotHWInterface : public ros_control_boilerplate::FRCRobotInterface
 		std::vector<std::thread> ctre_mc_read_threads_;
 		void ctre_mc_read_thread(std::shared_ptr<ctre::phoenix::motorcontrol::IMotorController> ctre_mc, std::shared_ptr<hardware_interface::TalonHWState> state, std::shared_ptr<std::mutex> mutex, std::unique_ptr<Tracer> tracer);
 
-		std::vector<std::shared_ptr<frc::NidecBrushless>> nidec_brushlesses_;
-		std::vector<std::shared_ptr<frc::DigitalInput>> digital_inputs_;
-		std::vector<std::shared_ptr<frc::DigitalOutput>> digital_outputs_;
-		std::vector<std::shared_ptr<frc::PWM>> PWMs_;
-		std::vector<HAL_SolenoidHandle> solenoids_;
-		std::vector<DoubleSolenoidHandle> double_solenoids_;
 		std::vector<std::shared_ptr<AHRS>> navXs_;
-		std::vector<std::shared_ptr<frc::AnalogInput>> analog_inputs_;
-
-		std::vector<std::shared_ptr<std::mutex>> pcm_read_thread_mutexes_;
-		std::vector<std::shared_ptr<hardware_interface::PCMState>> pcm_read_thread_state_;
-		void pcm_read_thread(HAL_CompressorHandle compressor_handle, int32_t pcm_id, std::shared_ptr<hardware_interface::PCMState> state, std::shared_ptr<std::mutex> mutex, std::unique_ptr<Tracer> tracer);
-		std::vector<std::thread> pcm_thread_;
-		std::vector<HAL_CompressorHandle> compressors_;
-
+	
 		std::thread motion_profile_thread_;
 		std::vector<std::shared_ptr<std::mutex>> motion_profile_mutexes_;
 
-		std::vector<std::shared_ptr<std::mutex>> pdp_read_thread_mutexes_;
-		std::vector<std::shared_ptr<hardware_interface::PDPHWState>> pdp_read_thread_state_;
-		void pdp_read_thread(int32_t pdp, std::shared_ptr<hardware_interface::PDPHWState> state, std::shared_ptr<std::mutex> mutex, std::unique_ptr<Tracer> tracer);
-		std::vector<std::thread> pdp_thread_;
-		std::vector<int32_t> pdps_;
 
-		std::vector<std::shared_ptr<Joystick>> joysticks_;
+		std::vector<std::shared_ptr<frc::Joystick>> joysticks_;
 		std::vector<std::unique_ptr<realtime_tools::RealtimePublisher<sensor_msgs::Joy>>> realtime_pub_joysticks_;
-
-		std::unique_ptr<ROSIterativeRobot> robot_;
 
 		Tracer read_tracer_;
 };  // class

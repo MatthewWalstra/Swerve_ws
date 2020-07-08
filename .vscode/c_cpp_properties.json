@@ -7,11 +7,11 @@
             },
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/ros/melodic/include",
-                "${workspaceFolder}/devel/include",
+                "/opt/ros/melodic/include/**",
+                "${workspaceFolder}/devel/include/**",
                 "/usr/include/**",
-                "/usr/local/include/**"
-                
+                "/usr/local/include/**",
+                "/home/matthew-walstra/wpilib/2020/roborio/arm-frc2020-linux-gnueabi/**"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x86",

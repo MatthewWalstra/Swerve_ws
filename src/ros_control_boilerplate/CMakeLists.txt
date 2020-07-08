@@ -19,8 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
   rosparam_shortcuts
   talon_interface
   message_generation
-  frc_msgs
-  frc_interfaces
 )
 
 add_message_files (
@@ -54,8 +52,6 @@ catkin_package(
 	actionlib
 	urdf
 	std_msgs
-	frc_msgs
-	frc_interfaces
 	sensor_msgs
 	rosparam_shortcuts
 	talon_interface

@@ -26,8 +26,6 @@
   <depend>rosparam_shortcuts</depend>
   <depend>talon_interface</depend>
   <depend>message_runtime</depend>
-  <depend>frc_interfaces</depend>
-  <depend>frc_msgs</depend>
 
   <export>
   </export>

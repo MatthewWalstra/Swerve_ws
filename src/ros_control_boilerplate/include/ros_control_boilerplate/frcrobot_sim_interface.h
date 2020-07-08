@@ -42,8 +42,6 @@
 #include <ros_control_boilerplate/frc_robot_interface.h>
 #include <atomic>
 #include <thread>
-#include <frc_msgs/MatchSpecificData.h>
-#include <frc_msgs/JoystickState.h>
 
 #include <ros_control_boilerplate/set_limit_switch.h>
 
@@ -89,11 +87,11 @@ class FRCRobotSimInterface : public ros_control_boilerplate::FRCRobotInterface
 		virtual bool setlimit(ros_control_boilerplate::set_limit_switch::Request &req,ros_control_boilerplate::set_limit_switch::Response &res);
 
 	protected:
-		virtual std::vector<ros_control_boilerplate::DummyJoint> getDummyJoints(void) override;
+		//virtual std::vector<ros_control_boilerplate::DummyJoint> getDummyJoints(void) override;
 
 	private:
         ros::Subscriber match_data_sub_;
-        void match_data_callback(const frc_msgs::MatchSpecificData &match_data);
+        //void match_data_callback(const frc_msgs::MatchSpecificData &match_data);
 		bool evaluateDigitalInput(ros_control_boilerplate::LineBreakSensors::Request &req, ros_control_boilerplate::LineBreakSensors::Response &res);
 
 		std::mutex match_data_mutex_;
