@@ -1,1 +1,1 @@
-catkin clean -y --deinit --all-profiles
+catkin clean -y #--deinit --all-profiles
