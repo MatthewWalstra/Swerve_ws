@@ -49,8 +49,11 @@
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/Joy.h>
 
-#include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
-#include <ctre/phoenix/motorcontrol/can/TalonFX.h>
+#define Phoenix_No_WPI // remove WPI dependencies
+#include "ctre/Phoenix.h"
+#include "ctre/phoenix/platform/Platform.h"
+#include "ctre/phoenix/unmanaged/Unmanaged.h"
+#include "ctre/phoenix/cci/Unmanaged_CCI.h"
 
 
 namespace frcrobot_control
