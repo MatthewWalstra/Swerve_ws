@@ -1,6 +1,7 @@
 #folders
 build
 devel
+CTRE
 logs
 build_isolated
 devel_isolated

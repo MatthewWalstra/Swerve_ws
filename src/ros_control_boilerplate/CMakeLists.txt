@@ -114,18 +114,18 @@ set (FRCROBOT_HW_MAIN_SRCS
 )
 
 #for CTRE
-set (WPI_SYSROOT $ENV{HOME}/wpilib/2020/roborio/arm-frc2020-linux-gnueabi)
+set (CTRE_SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../CTRE)
 include_directories(
 	${catkin_INCLUDE_DIRS}
-	${WPI_SYSROOT}/include
+	${CTRE_SYSROOT}/include
 )
 
 if ("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") # Jetson TK1
-	set (CTRE_LIB_DIR ${WPI_SYSROOT}/lib/ctre/linux/raspbian/static)    # Who knows if this will work
+	set (CTRE_LIB_DIR ${CTRE_SYSROOT}/lib/ctre/linux/raspbian/static)    # Who knows if this will work
 elseif ("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu") # Jetson TX1/TX2
-	set (CTRE_LIB_DIR ${WPI_SYSROOT}/lib/ctre/linux/jetsontx/static)
+	set (CTRE_LIB_DIR ${CTRE_SYSROOT}/lib/ctre/linux/jetsontx/static)
 else() # x86-64, hopefully. First person to try and build native on a Mac gets kicked off the team
-	set (CTRE_LIB_DIR ${WPI_SYSROOT}/lib/ctre/linux/x86-64/static)
+	set (CTRE_LIB_DIR ${CTRE_SYSROOT}/lib/ctre/linux/x86-64/static)
 endif()
   
 # All platforms need these, they just live
