@@ -68,6 +68,12 @@ sudo apt install -y \
 	wget \
 	xfonts-scalable
 
+#add submodules and wstool packages
+git submodule init
+git submodule update
+
+wstool update -t src
+
 #sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 30 --slave /usr/bin/g++ g++ /usr/bin/g++-9
 #sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
@@ -90,4 +96,11 @@ rm -rf ~/Swerve_ws/CTRE/devsite.ctr-electronics.com
 cd ~
 
 
+echo “source /opt/ros/melodic/setup.bash” >> ~/.bashrc
+source ~/.bashrc
+cd ~/Swerve_ws
 
+catkin_make
+
+echo “source ~/Swerve_ws/devel/setup.bash” >> ~/.bashrc
+source ~/.bashrc
