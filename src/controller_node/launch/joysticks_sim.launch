@@ -10,7 +10,7 @@
 		</node>
 		<node pkg="teleop_joystick_control" type="joystick_remap.py" name="joystick_remap" >
 			<remap from="joy_in" to="/joy0/joy" />
-			<remap from="joy_out" to="/frcrobot_rio/joystick_states_raw"/>
+			<remap from="joy_out" to="/frcrobot/joystick_states_raw"/>
 			<rosparam command="load" file="$(find teleop_joystick_control)/config/joystick_remap.yaml"/>
 		</node>
 	</group>	
@@ -23,7 +23,7 @@
 		</node>
 		<node pkg="teleop_joystick_control" type="joystick_remap.py" name="joystick_remap" >
 			<remap from="joy_in" to="/joy1/joy" />
-			<remap from="joy_out" to="/frcrobot_rio/joystick_states_raw1"/>
+			<remap from="joy_out" to="/frcrobot/joystick_states_raw1"/>
 			<rosparam command="load" file="$(find teleop_joystick_control)/config/joystick_remap.yaml"/>
 		</node>
 	</group>
