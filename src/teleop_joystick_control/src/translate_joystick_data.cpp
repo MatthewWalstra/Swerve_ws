@@ -1,12 +1,15 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
+#include <teleop_joystick_control/JoystickState.h>
 
+teleop_joystick_control::JoystickState processed_msg_last;
+teleop_joystick_control::JoystickState processed_msg;
 
 ros::Publisher processed_data_pub;
 
 void rawDataCB(const sensor_msgs::Joy::ConstPtr &msg)
 {
-	/*
+	
 	// preserve time stamp
 	processed_msg.header.stamp = msg->header.stamp;
 
@@ -73,7 +76,7 @@ void rawDataCB(const sensor_msgs::Joy::ConstPtr &msg)
 
 	// Set processed_msg_last to be correct the next time through
 	processed_msg_last = processed_msg;
-	*/
+	
 }
 
 int main(int argc, char ** argv)
@@ -81,8 +84,8 @@ int main(int argc, char ** argv)
     ros::init(argc, argv, "translate_joystick_data");
     ros::NodeHandle n;
 
-    ros::Subscriber raw_data_sub = n.subscribe("/frcrobot_rio/joystick_states_raw", 5, rawDataCB);
-//    processed_data_pub = n.advertise<frc_msgs::JoystickState>("joystick_states", 5);
+    ros::Subscriber raw_data_sub = n.subscribe("/frcrobot/joystick_states_raw", 5, rawDataCB);
+    processed_data_pub = n.advertise<teleop_joystick_control::JoystickState>("joystick_states", 5);
 
 
 	ros::spin();

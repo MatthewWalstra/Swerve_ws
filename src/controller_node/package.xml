@@ -46,7 +46,7 @@
   <run_depend>rospy</run_depend>
   <run_depend>move_base</run_depend>
   <run_depend>rplidar_ros</run_depend>
-  <run_depend>zed_wrapper</run_depend>
+  <!--<run_depend>zed_wrapper</run_depend> -->
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

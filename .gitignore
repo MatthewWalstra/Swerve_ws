@@ -1,5 +1,9 @@
 #folders
 build
+build_aarch64
+cc_internals
+install_aarch64
+log
 devel
 CTRE
 logs

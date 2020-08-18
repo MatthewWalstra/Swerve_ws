@@ -19,6 +19,9 @@
   <depend>talon_state_msgs</depend>
   <depend>dynamic_reconfigure</depend>
   <depend>dynamic_reconfigure_wrapper</depend>
+  <depend>std_msgs</depend>
+  <depend>message_generation</depend>
+  <depend>message_runtime</depend>
 
   <export>
   </export>

@@ -28,6 +28,7 @@ sudo apt install -y \
 	gfortran \
 	git \
 	gstreamer1.0-plugins-* \
+	google-perftools \
 	htop \
 	libatlas-base-dev \
 	libboost-all-dev \
@@ -38,6 +39,7 @@ sudo apt install -y \
 	libgflags-dev \
 	libgoogle-glog-dev \
 	libgoogle-perftools-dev \
+	libgoogle-perftools4 \
 	libgtk2.0-dev \
 	libhdf5-dev \
 	libhdf5-serial-dev \

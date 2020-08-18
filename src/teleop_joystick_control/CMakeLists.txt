@@ -17,6 +17,12 @@ find_package(catkin REQUIRED COMPONENTS
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
 
+## Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  JoystickState.msg
+)
+
 # Generate services in the 'srv' folder
 add_service_files (
 	FILES
@@ -26,7 +32,8 @@ add_service_files (
 generate_messages (
 	DEPENDENCIES
 	std_msgs
-	teleop_joystick_control	
+	teleop_joystick_control
+
 	)
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
@@ -41,6 +48,9 @@ catkin_package(
 	include
 	CATKIN_DEPENDS
 	roscpp
+	std_msgs
+	message_runtime
+	message_generation
 	control_msgs
 	LIBRARIES
 	DEPENDS

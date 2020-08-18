@@ -9,7 +9,7 @@
 #include "geometry_msgs/Quaternion.h"
 #include "sensor_msgs/Imu.h"
 #include "nav_msgs/Odometry.h"
-#include "../../navXTimeSync/AHRS.h"
+#include "../../../navXTimeSync/AHRS.h"
 #include "navx_publisher/stampedUInt64.h"
 #include <tf/transform_datatypes.h>
 
