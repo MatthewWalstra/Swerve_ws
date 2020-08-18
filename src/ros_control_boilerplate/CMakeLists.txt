@@ -140,7 +140,7 @@ set (CTRE_USER_LIBS
 # This adds code to use linux CAN sockets to talk to
 # the CAN bus for the Jetson
 # Also add all of the wpilib code needed to talk to PCM and PDP
-if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
+#if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
 	set (CTRE_USER_LIBS 
 		${CTRE_USER_LIBS}
 		${CTRE_LIB_DIR}/libCTRE_PhoenixCanutils.a
@@ -148,20 +148,20 @@ if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
 	)
 
 	#Phoenix_sim_main goes here
-	if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
-		      "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+	#if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+	#	      "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
 		add_executable(frcrobot_phoenixsim_main
 			src/frcrobot_phoenixsim_interface.cpp
 			src/frcrobot_phoenixsim_main.cpp
 			src/frcrobot_hw_interface.cpp
 		)
 
-		if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
-				  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+		#if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+		#		  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
 			set (CTRE_DIAGNOSTIC_LIBS 
 				${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
 			)
-		endif()
+		#endif()
 		target_link_libraries(frcrobot_phoenixsim_main
 			${catkin_LIBRARIES}
 			${CTRE_LIB_DIR}/libCTRE_Phoenix.a
@@ -188,18 +188,18 @@ if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
 		  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 		  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 		)
-	endif()
+	#endif()
 
 	#end Phoenix_sim_main
-endif()
+#endif()
 
-if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
-		  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+#if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+#		  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
 	set (CTRE_USER_LIBS 
 		${CTRE_USER_LIBS}
 		${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
 	)
-endif()
+#endif()
 
 add_executable(frcrobot_hw_main ${FRCROBOT_HW_MAIN_SRCS})
 

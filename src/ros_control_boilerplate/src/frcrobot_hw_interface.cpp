@@ -76,9 +76,9 @@
 #include "ros_control_boilerplate/frcrobot_hw_interface.h"
 #include "ros_control_boilerplate/tracer.h"
 
-#include <ctre/phoenix/motorcontrol/SensorCollection.h>
-#include <ctre/phoenix/platform/Platform.h>
-#include <ctre/phoenix/cci/Unmanaged_CCI.h>
+//#include <ctre/phoenix/motorcontrol/SensorCollection.h>
+//#include <ctre/phoenix/platform/Platform.h>
+//#include <ctre/phoenix/cci/Unmanaged_CCI.h>
 
 #ifdef __linux__
 #include <sched.h>

@@ -1,6 +1,7 @@
 #include <ros_control_boilerplate/frcrobot_phoenixsim_interface.h>
 
 /* additional include for sim */
+#define Phoenix_No_WPI // remove WPI dependencies
 #include <ctre/phoenix/cci/Platform_CCI.h> // c_SimCreate
 #include <ctre/phoenix/cci/Unmanaged_CCI.h> // c_FeedEnable
 
