@@ -1,12 +1,17 @@
 #folders
-build
-build_aarch64
-cc_internals
-install_aarch64
-log
-devel
+build/*
+build_aarch64/*
+build_amd64/*
+aarch64_root/*
+install/*
+install_aarch64/*
+install_amd64/*
+log/*
+devel/*
+devel_aarch64/*
+devel_amd64/*
 CTRE
-logs
+logs/*
 build_isolated
 devel_isolated
 install_isolated
@@ -17,8 +22,10 @@ install_native
 .rosinstall.bak
 #.rosinstall
 #.vscode
-.catkin_tools
+#.catkin_tools
 callgrind.out.*
-
+.catkin_tools/profiles/aarch64/packages/*
+.catkin_tools/profiles/amd64/packages/*
+.catkin_tools/profiles/default/packages/*
 #workspace files
 *.code-workspace
