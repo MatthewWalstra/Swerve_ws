@@ -207,7 +207,6 @@ add_executable(frcrobot_hw_main ${FRCROBOT_HW_MAIN_SRCS})
 # wpilib for HAL, driver station, and so on
 target_link_libraries(frcrobot_hw_main
 	${catkin_LIBRARIES}
-	${PLATFORM_SPECIFIC_LIBS}
 	${CTRE_USER_LIBS}
 	frc_robot_interface
 )
@@ -224,7 +223,6 @@ add_dependencies(frcrobot_hw_main
 add_executable(q_to_rpy src/q_to_rpy.cpp)
 target_link_libraries(q_to_rpy
 	${catkin_LIBRARIES}
-	${PLATFORM_SPECIFIC_LIBS}
 	${CTRE_USER_LIBS}
 )
 
