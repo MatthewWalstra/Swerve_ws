@@ -6,7 +6,7 @@ cmake_args:
 - -DCMAKE_CROSS_COMPILE_PREFIX=/home/matthew-walstra/Swerve_ws/aarch64_root
 devel_layout: linked
 devel_space: devel_aarch64
-extend_path: /home/matthew-walstra/Swerve_ws/aarch64_root/opt/ros/melodic
+extend_path: null
 install: false
 install_space: install_aarch64
 isolate_install: false

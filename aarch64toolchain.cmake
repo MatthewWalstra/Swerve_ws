@@ -1,8 +1,9 @@
 #File raspberrytoolchain.cmake for ROS and system packages to cross compile.
 SET(CMAKE_SYSTEM_NAME Linux)
 
-SET(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
-SET(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
+SET(CMAKE_C_COMPILER aarch64-linux-gnu-gcc-8)
+#SET(CMAKE_CXX_COMPILER aarch64-linux-gnu-gcc)
+SET(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++-8)
 
 # Below call is necessary to avoid non-RT problem.
 SET(CMAKE_LIBRARY_ARCHITECTURE aarch64-linux-gnu)
@@ -10,7 +11,7 @@ SET(CMAKE_LIBRARY_ARCHITECTURE aarch64-linux-gnu)
 SET(AARCH64_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR}/aarch64_root)
 SET(AARCH64_MELODIC_PATH ${AARCH64_ROOT_PATH}/opt/ros/melodic)
 
-SET(CMAKE_FIND_ROOT_PATH ${AARCH64_ROOT_PATH} ${CATKIN_DEVEL_PREFIX})
+SET(CMAKE_FIND_ROOT_PATH ${AARCH64_ROOT_PATH} ${CATKIN_DEVEL_PREFIX} )
 
 #If you have installed cross compiler to somewhere else, please specify that path.
 SET(COMPILER_ROOT /usr/aarch64-linux-gnu) 

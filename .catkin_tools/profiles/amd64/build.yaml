@@ -1,14 +1,15 @@
 blacklist: []
-build_space: build_aarch64
+build_space: build_amd64
 catkin_make_args: []
 cmake_args: []
 devel_layout: linked
-devel_space: devel_aarch64
-extend_path: #/home/matthew-walstra/Swerve_ws/aarch64_root/opt/ros/melodic
+devel_space: devel_amd64
+extend_path: /opt/ros/melodic
 install: false
-install_space: install_aarch64
+install_space: install_amd64
 isolate_install: false
-jobs_args: []
+jobs_args:
+- -j8
 log_space: logs
 make_args: []
 source_space: src

@@ -4,6 +4,9 @@ project(ros_control_boilerplate)
 include ("../cmake_modules/CMakeOpt.cmake")
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(xmlrpcpp REQUIRED)
+find_package(rosparam_shortcuts REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
   cmake_modules
   realtime_tools
@@ -115,6 +118,13 @@ set (FRCROBOT_HW_MAIN_SRCS
 
 #for CTRE
 set (CTRE_SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../CTRE)
+set (MELODIC_LIB_SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../aarch64_root/opt/ros/melodic/lib)
+
+set (MELODIC_USER_LIBS
+	${MELODIC_LIB_SYSROOT}/libeigen_conversions.so
+	${MELODIC_LIB_SYSROOT}/liborocos-kdl.so.1.4
+)
+
 include_directories(
 	${catkin_INCLUDE_DIRS}
 	${CTRE_SYSROOT}/include
@@ -134,34 +144,32 @@ set (CTRE_USER_LIBS
 	${CTRE_LIB_DIR}/libCTRE_Phoenix.a
 	${CTRE_LIB_DIR}/libCTRE_PhoenixCCI.a
 	${CTRE_LIB_DIR}/libCTRE_PhoenixCore.a
+	${CTRE_LIB_DIR}/libCTRE_PhoenixCanutils.a
+	${CTRE_LIB_DIR}/libCTRE_PhoenixPlatform_socketcan.a
+	${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
 )
 
 # Add socketcan library to everything but the Rio
 # This adds code to use linux CAN sockets to talk to
 # the CAN bus for the Jetson
 # Also add all of the wpilib code needed to talk to PCM and PDP
-#if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
-	set (CTRE_USER_LIBS 
-		${CTRE_USER_LIBS}
-		${CTRE_LIB_DIR}/libCTRE_PhoenixCanutils.a
-		${CTRE_LIB_DIR}/libCTRE_PhoenixPlatform_socketcan.a
-	)
+if (NOT "${ARM_PREFIX}" STREQUAL "arm-frc2020-linux-gnueabi")
 
 	#Phoenix_sim_main goes here
-	#if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
-	#	      "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+	if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+		      "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
 		add_executable(frcrobot_phoenixsim_main
 			src/frcrobot_phoenixsim_interface.cpp
 			src/frcrobot_phoenixsim_main.cpp
 			src/frcrobot_hw_interface.cpp
 		)
 
-		#if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
-		#		  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
+		if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
+				  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
 			set (CTRE_DIAGNOSTIC_LIBS 
 				${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
 			)
-		#endif()
+		endif()
 		target_link_libraries(frcrobot_phoenixsim_main
 			${catkin_LIBRARIES}
 			${CTRE_LIB_DIR}/libCTRE_Phoenix.a
@@ -188,28 +196,40 @@ set (CTRE_USER_LIBS
 		  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 		  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 		)
-	#endif()
+	endif()
 
 	#end Phoenix_sim_main
-#endif()
+endif()
 
 #if (NOT (("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf") OR
 #		  "${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "aarch64-linux-gnu"))  
-	set (CTRE_USER_LIBS 
-		${CTRE_USER_LIBS}
-		${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
-	)
+#	set (CTRE_USER_LIBS 
+#		${CTRE_USER_LIBS}
+#		${CTRE_LIB_DIR}/libCTRE_PhoenixDiagnostics.a
+#	)
 #endif()
 
 add_executable(frcrobot_hw_main ${FRCROBOT_HW_MAIN_SRCS})
 
 # Link against wpi user libraries for CAN talon and navX-MXP code and
 # wpilib for HAL, driver station, and so on
+if (NOT ("${CMAKE_CROSS_COMPILE_PREFIX}" STREQUAL ""))
+
+target_link_libraries(frcrobot_hw_main
+	${catkin_LIBRARIES}
+	${CTRE_USER_LIBS}
+	frc_robot_interface
+	${xmlrpcpp_LIBRARIES}
+	${rosparam_shortcuts_LIBRARIES}
+	${MELODIC_USER_LIBS}
+)
+else()
 target_link_libraries(frcrobot_hw_main
 	${catkin_LIBRARIES}
 	${CTRE_USER_LIBS}
 	frc_robot_interface
 )
+endif()
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above. This is needed to force
