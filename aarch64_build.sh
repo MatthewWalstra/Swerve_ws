@@ -1,3 +1,3 @@
-source ~/Swerve_ws/aarch64_root/opt/ros/melodic/setup.bash
+source /opt/ros/melodic/setup.bash
 catkin profile set aarch64
-catkin build -j8 --cmake-args -DCMAKE_TOOLCHAIN_FILE=$(pwd)/aarch64toolchain.cmake -DCMAKE_CROSS_COMPILE_PREFIX=$(pwd)/aarch64_root
+catkin build -j4
