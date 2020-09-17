@@ -1,1 +1,0 @@
-ros_cross_compile $(pwd) --arch aarch64 --os ubuntu --rosdistro melodic --custom-setup-script $(pwd)/cross_compile_setup.sh

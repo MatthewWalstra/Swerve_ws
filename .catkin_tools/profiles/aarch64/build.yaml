@@ -2,8 +2,8 @@ blacklist: []
 build_space: build_aarch64
 catkin_make_args: []
 cmake_args:
-- -DCMAKE_TOOLCHAIN_FILE=/home/matthew-walstra/Swerve_ws/aarch64toolchain.cmake
-- -DCMAKE_CROSS_COMPILE_PREFIX=/home/matthew-walstra/Swerve_ws/aarch64_root
+- -DCMAKE_TOOLCHAIN_FILE=$Home/Swerve_ws/aarch64toolchain.cmake
+- -DCMAKE_CROSS_COMPILE_PREFIX=$HOME/Swerve_ws/aarch64_root
 devel_layout: linked
 devel_space: devel_aarch64
 extend_path: null
